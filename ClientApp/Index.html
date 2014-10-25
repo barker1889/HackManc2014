@@ -44,23 +44,23 @@
     <script src="Scripts/jquery-1.9.0.min.js" type="text/javascript"></script>
     <script src="//js.pusher.com/2.2/pusher.min.js" type="text/javascript"></script>
     <script type="text/javascript">
-        // Enable pusher logging - don't include this in production
+        // Enable pusher logging
         Pusher.log = function (message) {
             if (window.console && window.console.log) {
                 window.console.log(message);
             }
         };
 
-        var template = "{0}{1}";
+        var drNick = new Audio("Audio/DrNick.wav");
+
         var tagId = window.location.search.substring(1);
 
         var pusher = new Pusher('2d681985720e46e6f974');
         var channel = pusher.subscribe(tagId);
         channel.bind('location_change', function (data) {
-            //alert("Location change: " + data.location_id);
+           
             $('#feedback').append("<h4>New location for " + tagId + "</h4><p>" + data.location_id + "</p>");
-            var snd = new Audio("Audio/DrNick.wav"); // buffers automatically when created
-            snd.play();
+            drNick.play();
         });
     </script>
 </body>
