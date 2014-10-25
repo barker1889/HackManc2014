@@ -60,6 +60,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Events\TagReceivedEvent.cs" />
+    <Compile Include="InputProcessing\Command.cs" />
+    <Compile Include="InputProcessing\CommandAction.cs" />
+    <Compile Include="InputProcessing\CommandHandler.cs" />
+    <Compile Include="InputProcessing\ICommandHandler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RfidSensor.cs" />

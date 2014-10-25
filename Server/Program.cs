@@ -1,6 +1,7 @@
 ﻿using System;
 using PusherServer;
 using RestSharp;
+using Server.InputProcessing;
 
 namespace Server
 {
@@ -21,12 +22,12 @@ namespace Server
 
             Console.WriteLine("Server ready.");
 
-            ListenForInput();
+            ListenForInput(new CommandHandler());
 
             CloseServer();
         }
 
-        private static void ListenForInput()
+        private static void ListenForInput(ICommandHandler handler)
         {
             var isRunning = true;
 
@@ -34,19 +35,16 @@ namespace Server
             {
                 var input = Console.ReadLine();
 
-                if (string.IsNullOrWhiteSpace(input))
-                    continue;
+                var actionToTake = handler.HandleInput(input);
 
-                var commandParts = input.Split(' ');
-                var command = commandParts[0];
-
-                switch (command.ToUpper())
+                switch (actionToTake.Action)
                 {
-                    case "LOCATION":
-                        _fakeLocationId = commandParts[1];
-                        break;
-                    case "QUIT":
+                    case CommandAction.Quit:
                         isRunning = false;
+                        break;
+
+                    case CommandAction.SetScannerLocation:
+                        _fakeLocationId = actionToTake.Data;
                         break;
                 }
             }
@@ -60,11 +58,6 @@ namespace Server
             _sensor.TagReceived += sensor_TagReceived;
         }
 
-        static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
-        {
-            CloseServer();
-        }
-
         static void sensor_TagReceived(object sender, Events.TagReceivedEvent e)
         {
             Console.WriteLine("Received: " + e.TagData);
@@ -72,6 +65,11 @@ namespace Server
             var data = new JsonObject {{"location_id", _fakeLocationId}};
 
             _pusher.Trigger("110057f2cd", "location_changed", data);
+        }
+
+        static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
+        {
+            CloseServer();
         }
 
         private static void CloseServer()
