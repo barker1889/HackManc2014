@@ -22,7 +22,6 @@
 
         self.on('click', function () {
             currentGesture.tapCount++;
-            
             clearTimeout(currentGesture.timeout);
 
             if (currentGesture.tapCount < 3) {
