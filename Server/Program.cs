@@ -64,7 +64,7 @@ namespace Server
 
             var data = new JsonObject {{"location_id", _fakeLocationId}};
 
-            _pusher.Trigger("110057f2cd", "location_changed", data);
+            _pusher.Trigger(e.TagData, "location_change", data);
         }
 
         static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
