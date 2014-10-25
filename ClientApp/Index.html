@@ -4,46 +4,30 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <meta name="description" content="">
     <meta name="author" content="">
 
     <title>Purple Dragons</title>
 
-    <!-- Bootstrap core CSS -->
     <link href="Content/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Custom styles for this template -->
     <link href="Content/jumbotron-narrow.css" rel="stylesheet">
+    <link href="Content/app.css" rel="stylesheet">
 
 </head>
 
 <body>
 
-    <div class="container">
-
-
-        <div class="jumbotron">
-            <h1>Purple Dragons</h1>
-
-        </div>
-
-        <div class="row marketing">
-            <div id="feedback" class="col-lg-12">
-
-            </div>
-
-        </div>
-
-        <div class="footer">
-            <p>&copy; Purple Dragons 2014</p>
-        </div>
-
+    <div id="tap-area" class="full-screen">
     </div>
-
+    
     <script src="Scripts/jquery-1.9.0.min.js" type="text/javascript"></script>
     <script src="//js.pusher.com/2.2/pusher.min.js" type="text/javascript"></script>
+    
     <script src="Scripts/AudioTriggers.js" type="text/javascript"></script>
+    <script src="Scripts/filler.js" type="text/javascript"></script>
+    <script src="Scripts/tappy-tap.js" type="text/javascript"></script>
+
     <script type="text/javascript">
 
         // Enable pusher logging
@@ -55,6 +39,8 @@
 
         var drNick = new Audio("Audio/DrNick.wav");
 
+        var currentAudioFileLocation;
+
         var tagId = window.location.search.substring(1);
 
         var pusher = new Pusher('2d681985720e46e6f974');
@@ -62,13 +48,25 @@
 
         channel.bind('location_change', function (data) {
 
-            $('#feedback').append("<h4>New location for " + tagId + "</h4><p>" + data.location_id + "</p>");
+            console.log('Received tag: ' + data.location_id);
 
-            var audioFileLocation = getAudioForLocation(data.location_id);
-            if (audioFileLocation) {
-                var snd = new Audio(audioFileLocation);
-                snd.play();
+            currentAudioFileLocation = getAudioForLocation(data.location_id);
+
+            playCurrentAudioFile();
+        });
+
+        var playCurrentAudioFile = function () {
+            if (currentAudioFileLocation) {
+                var audioFile = new Audio(currentAudioFileLocation);
+                audioFile.play();
             }
+        };
+
+        $('#tap-area').filler();
+        
+        $('#tap-area').tappyTap({
+            delayMs: 400,
+            onSingleTap: playCurrentAudioFile
         });
     </script>
 </body>
