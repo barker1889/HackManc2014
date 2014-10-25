@@ -1,20 +1,19 @@
 ﻿using System;
+using System.Globalization;
 using PusherServer;
-using RestSharp;
+using Server.BusTimeApi;
 using Server.InputProcessing;
 
 namespace Server
 {
     class Program
     {
+        private const string BusStopId = "1800SB09201";
         private static RfidSensor _sensor;
         private static Pusher _pusher;
-        private static string _fakeLocationId;
 
         static void Main(string[] args)
         {
-            _fakeLocationId = "1";
-
             Console.CancelKeyPress += Console_CancelKeyPress;
             Console.WriteLine("Server starting...");
 
@@ -44,7 +43,6 @@ namespace Server
                         break;
 
                     case CommandAction.SetScannerLocation:
-                        _fakeLocationId = actionToTake.Data;
                         break;
                 }
             }
@@ -62,9 +60,15 @@ namespace Server
         {
             Console.WriteLine("Received: " + e.TagData);
 
-            var data = new JsonObject {{"location_id", _fakeLocationId}};
+            // TODO: Immediate eedback since the request might take a while
+            // _pusher.Trigger(e.TagData, "request_received", DateTime.Now.ToString(CultureInfo.InvariantCulture));
 
-            _pusher.Trigger(e.TagData, "location_change", data);
+            Console.WriteLine("Fetching bus times...");
+            var schedule = new BusScheduleWrapper(BusStopId);
+            schedule.GetBusTimes(DateTime.Now);
+            Console.WriteLine("Done.");
+
+            _pusher.Trigger(e.TagData, "location_change", "TBC");
         }
 
         static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
