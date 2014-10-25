@@ -59,6 +59,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BusTimeApi\BusScheduleWrapper.cs" />
+    <Compile Include="BusTimeApi\Models\All.cs" />
+    <Compile Include="BusTimeApi\Models\BusStopSchedule.cs" />
+    <Compile Include="BusTimeApi\Models\Departures.cs" />
     <Compile Include="Events\TagReceivedEvent.cs" />
     <Compile Include="InputProcessing\Command.cs" />
     <Compile Include="InputProcessing\CommandAction.cs" />
