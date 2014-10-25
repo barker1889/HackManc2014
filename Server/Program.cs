@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Globalization;
 using PusherServer;
 using Server.BusTimeApi;
 using Server.InputProcessing;
+using Server.Services;
 
 namespace Server
 {
@@ -60,12 +60,26 @@ namespace Server
         {
             Console.WriteLine("Received: " + e.TagData);
 
-            // TODO: Immediate eedback since the request might take a while
+            // TODO: Immediate feedback since the request might take a while
             // _pusher.Trigger(e.TagData, "request_received", DateTime.Now.ToString(CultureInfo.InvariantCulture));
 
             Console.WriteLine("Fetching bus times...");
-            var schedule = new BusScheduleWrapper(BusStopId);
-            schedule.GetBusTimes(DateTime.Now);
+            var busStopSdk = new BusScheduleWrapper(BusStopId);
+            var schedule = busStopSdk.GetBusTimes(DateTime.Now);
+            Console.WriteLine("Done.");
+
+            var processor = new BusTimeProcessor(schedule);
+            var nextBusses = processor.GetNextThreeBuses();
+
+            var messageGenerator = new MessageGenerator();
+            var messageContent = messageGenerator.GenerateNextDeparturesMessage(schedule.atcocode, nextBusses);
+
+            var fileName = Guid.NewGuid() + ".wav";
+
+
+            Console.WriteLine("Pushing to azure...");
+            var publisher = new AudioPublisher(new BlobPublisher(), new AudioStreamCreator());
+            publisher.GenerateFileAndPublish(fileName, messageContent);
             Console.WriteLine("Done.");
 
             _pusher.Trigger(e.TagData, "location_change", "TBC");
