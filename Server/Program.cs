@@ -1,5 +1,7 @@
 ﻿using System;
 using PusherServer;
+using RestSharp;
+using Server.InputProcessing;
 
 namespace Server
 {
@@ -7,34 +9,67 @@ namespace Server
     {
         private static RfidSensor _sensor;
         private static Pusher _pusher;
+        private static string _fakeLocationId;
 
         static void Main(string[] args)
         {
-            Console.CancelKeyPress += Console_CancelKeyPress;
+            _fakeLocationId = "1";
 
+            Console.CancelKeyPress += Console_CancelKeyPress;
             Console.WriteLine("Server starting...");
 
-            _pusher = new Pusher("94187", "2d681985720e46e6f974", "8ab83d4148b4809dff09");
+            Initialise();
 
-            _sensor = new RfidSensor();
-            _sensor.TagReceived += sensor_TagReceived;
-            
             Console.WriteLine("Server ready.");
-            Console.ReadLine();
+
+            ListenForInput(new CommandHandler());
 
             CloseServer();
         }
 
-        static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
+        private static void ListenForInput(ICommandHandler handler)
         {
-            CloseServer();
+            var isRunning = true;
+
+            while (isRunning)
+            {
+                var input = Console.ReadLine();
+
+                var actionToTake = handler.HandleInput(input);
+
+                switch (actionToTake.Action)
+                {
+                    case CommandAction.Quit:
+                        isRunning = false;
+                        break;
+
+                    case CommandAction.SetScannerLocation:
+                        _fakeLocationId = actionToTake.Data;
+                        break;
+                }
+            }
+        }
+
+        private static void Initialise()
+        {
+            _pusher = new Pusher("94187", "2d681985720e46e6f974", "8ab83d4148b4809dff09");
+
+            _sensor = new RfidSensor();
+            _sensor.TagReceived += sensor_TagReceived;
         }
 
         static void sensor_TagReceived(object sender, Events.TagReceivedEvent e)
         {
             Console.WriteLine("Received: " + e.TagData);
 
-            _pusher.Trigger("test_channel", "TagDetected", DateTime.Now.ToString());
+            var data = new JsonObject {{"location_id", _fakeLocationId}};
+
+            _pusher.Trigger("110057f2cd", "location_changed", data);
+        }
+
+        static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
+        {
+            CloseServer();
         }
 
         private static void CloseServer()
