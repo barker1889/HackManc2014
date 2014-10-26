@@ -22,7 +22,7 @@
             <p class="icon-instruction">Tap now</p>
         </div>
 
-        <span class="status-message">Paired <span class="glyphicon glyphicon-ok"></span></span>
+        <span class="status-message">(v1.1) Paired <span class="glyphicon glyphicon-ok"></span></span>
     </div>
     
     <script src="Scripts/jquery-1.9.0.min.js" type="text/javascript"></script>
@@ -50,21 +50,11 @@
         var playNextBuses = function () {
             currentAudioFileLocation = currentAudioFiles[0];
             playAudioFile(currentAudioFileLocation);
-            
-            $('#tap-area').tappyTap({
-                delayMs: 400,
-                onDoubleTap: repeatLastAudio
-            });
         };
 
         var playMyPreferences = function() {
             currentAudioFileLocation = currentAudioFiles[1];
             playAudioFile(currentAudioFileLocation);
-            
-            $('#tap-area').tappyTap({
-                delayMs: 400,
-                onDoubleTap: repeatLastAudio
-            });
         };
 
         channel.bind('audio_updated', function (audioUrls) {
@@ -86,9 +76,11 @@
             }
         });
 
+        var audioFile;
+        
         var playAudioFile = function (url) {
             if (url) {
-                var audioFile = new Audio(url);
+                audioFile = new Audio(url);
                 audioFile.play();
             }
         };
