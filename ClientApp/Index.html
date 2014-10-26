@@ -39,15 +39,18 @@
         var channel = pusher.subscribe(tagId);
 
         channel.bind('request_received', function () {
+            alert('Server received request')
             playAudioFile('Audio/double_tone.mp3');
         });
         
         channel.bind('audio_updated', function (audioUrl) {
+            alert('Audio link delivered');
             currentAudioFileLocation = audioUrl;
             playAudioFile(currentAudioFileLocation);
         });
 
         var playAudioFile = function (url) {
+            alert('Starting streaming ' + url);
             if (url) {
                 var audioFile = new Audio(url);
                 audioFile.play();
