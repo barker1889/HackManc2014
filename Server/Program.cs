@@ -63,8 +63,7 @@ namespace Server
         {
             Console.WriteLine("Received: " + e.TagData);
 
-            // TODO: Immediate feedback since the request might take a while
-            // _pusher.Trigger(e.TagData, "request_received", DateTime.Now.ToString(CultureInfo.InvariantCulture));
+            _pusher.Trigger(e.TagData, "request_received", "");
 
             Console.WriteLine("Fetching bus times...");
             var busStopSdk = new BusScheduleWrapper(BusStopId);
@@ -80,8 +79,8 @@ namespace Server
             var fileName = Guid.NewGuid() + ".wav";
 
             Console.WriteLine("Pushing to azure...");
-            var publisher = new AudioPublisher(new BlobPublisher(), new AudioStreamCreator());
-            publisher.GenerateFileAndPublish(fileName, messageContent);
+            var busTimesPublisher = new AudioPublisher(new BlobPublisher(), new AudioStreamCreator());
+            busTimesPublisher.GenerateFileAndPublish(fileName, messageContent);
             Console.WriteLine("Done.");
 
             var fullFilePath = AudioBaseUrl + fileName;

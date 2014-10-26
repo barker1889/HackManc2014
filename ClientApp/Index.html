@@ -30,9 +30,9 @@
         var pusher = new Pusher('2d681985720e46e6f974');
         var channel = pusher.subscribe(tagId);
 
-        //channel.bind('request_received', function (audioUrl) {
-        //    playAudioFile(audioUrl);
-        //});
+        channel.bind('request_received', function () {
+            playAudioFile('Audio/double_tone.mp3');
+        });
         
         channel.bind('audio_updated', function (audioUrl) {
             currentAudioFileLocation = audioUrl;
@@ -40,7 +40,7 @@
         });
 
         var playAudioFile = function (url) {
-            if (currentAudioFileLocation) {
+            if (url) {
                 var audioFile = new Audio(url);
                 audioFile.play();
             }
