@@ -27,6 +27,24 @@ namespace Server.Services
                                             Direction = "Spinningfields, Quay Street/Deansgate"
                                         }
                                 }
+                        },
+
+                    new BusRoutePreference
+                        {
+                            userTagId = "0107ee6b3d",
+                            Routes = new List<BusRoute>
+                                {
+                                    new BusRoute
+                                        {
+                                            RouteNumber = "2",
+                                            Direction = "Shudehill Interchange (Shudehill)"
+                                        },
+                                    new BusRoute
+                                        {
+                                            RouteNumber = "3",
+                                            Direction = "Spinningfields, Quay Street/Deansgate"
+                                        }
+                                }
                         }
                 };
         }
