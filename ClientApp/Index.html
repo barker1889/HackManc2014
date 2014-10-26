@@ -50,21 +50,11 @@
         var playNextBuses = function () {
             currentAudioFileLocation = currentAudioFiles[0];
             playAudioFile(currentAudioFileLocation);
-            
-            $('#tap-area').tappyTap({
-                delayMs: 400,
-                onDoubleTap: repeatLastAudio
-            });
         };
 
         var playMyPreferences = function() {
             currentAudioFileLocation = currentAudioFiles[1];
             playAudioFile(currentAudioFileLocation);
-            
-            $('#tap-area').tappyTap({
-                delayMs: 400,
-                onDoubleTap: repeatLastAudio
-            });
         };
 
         channel.bind('audio_updated', function (audioUrls) {
