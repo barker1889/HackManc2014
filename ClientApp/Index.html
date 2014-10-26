@@ -32,7 +32,6 @@
 
     <script type="text/javascript">
         var currentAudioFileLocation;
-        var audioHolder;
 
         var tagId = window.location.search.substring(1);
 
@@ -50,8 +49,8 @@
 
         var playAudioFile = function (url) {
             if (url) {
-                audioHolder.src = url;
-                audioHolder.play();
+                var audioFile = new Audio(url);
+                audioFile.play();
             }
         };
 
@@ -60,14 +59,9 @@
         };
 
         $('#tap-area').filler();
-
-        var initPage = function() {
-            audioHolder = new Audio();
-        };
-
+        
         $('#tap-area').tappyTap({
             delayMs: 400,
-            onSingleTap: initPage,
             onDoubleTap: repeatLastAudio
         });
     </script>
