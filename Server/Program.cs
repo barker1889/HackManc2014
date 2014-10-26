@@ -9,6 +9,9 @@ namespace Server
     class Program
     {
         private const string BusStopId = "1800SB09201";
+        private const string BusStopName = "Lower Byrom Street/Science Museum";
+        private const string AudioBaseUrl = "https://busbuddyjb.blob.core.windows.net/buses/";
+
         private static RfidSensor _sensor;
         private static Pusher _pusher;
 
@@ -72,17 +75,18 @@ namespace Server
             var nextBusses = processor.GetNextThreeBuses();
 
             var messageGenerator = new MessageGenerator();
-            var messageContent = messageGenerator.GenerateNextDeparturesMessage(schedule.atcocode, nextBusses);
+            var messageContent = messageGenerator.GenerateNextDeparturesMessage(BusStopName, nextBusses);
 
             var fileName = Guid.NewGuid() + ".wav";
-
 
             Console.WriteLine("Pushing to azure...");
             var publisher = new AudioPublisher(new BlobPublisher(), new AudioStreamCreator());
             publisher.GenerateFileAndPublish(fileName, messageContent);
             Console.WriteLine("Done.");
 
-            _pusher.Trigger(e.TagData, "location_change", "TBC");
+            var fullFilePath = AudioBaseUrl + fileName;
+
+            _pusher.Trigger(e.TagData, "audio_updated", fullFilePath);
         }
 
         static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)

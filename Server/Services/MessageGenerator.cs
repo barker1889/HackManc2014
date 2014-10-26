@@ -19,10 +19,10 @@ namespace Server.Services
 
                 var friendlyDepartureTime = departureTime.ToString("HH mm");
 
-                busTimes.AppendFormat("{0} {1} at {2}, ", departure.direction, departure.line, friendlyDepartureTime);
+                busTimes.AppendFormat("the {0} at {1}, ", departure.line, friendlyDepartureTime);
             }
 
-            return messageStart + busTimes;
+            return messageStart + busTimes + ". Double tap to repeat.";
         }
     }
 }
