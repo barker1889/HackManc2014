@@ -86,9 +86,11 @@
             }
         });
 
+        var audioFile;
+        
         var playAudioFile = function (url) {
             if (url) {
-                var audioFile = new Audio(url);
+                audioFile = new Audio(url);
                 audioFile.play();
             }
         };
