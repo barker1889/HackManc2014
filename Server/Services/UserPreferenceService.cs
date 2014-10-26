@@ -5,7 +5,7 @@ namespace Server.Services
 {
     public class UserPreferenceService
     {
-        private readonly List<BusRoutePreference> _fakeUserPreferences;
+        private readonly List<BusRoutePreference> _fakeUserPreferences = new List<BusRoutePreference>();
 
         public UserPreferenceService()
         {
@@ -33,8 +33,10 @@ namespace Server.Services
 
         public List<BusRoute> GetBusRoutesPreferencesForTag(string tagId)
         {
-            var routePreferencesForUser = _fakeUserPreferences.Single(userPref => userPref.userTagId == tagId);
-            return routePreferencesForUser.Routes;
+            var routePreferencesForUser = _fakeUserPreferences.SingleOrDefault(userPref => userPref.userTagId == tagId);
+            return routePreferencesForUser != null
+                       ? routePreferencesForUser.Routes
+                       : new List<BusRoute>();
         }
     }
 

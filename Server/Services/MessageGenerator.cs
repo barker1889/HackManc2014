@@ -22,7 +22,7 @@ namespace Server.Services
                 busTimes.AppendFormat("the {0} at {1}, ", departure.line, friendlyDepartureTime);
             }
 
-            return messageStart + busTimes + ". Double tap to repeat.";
+            return messageStart + busTimes + ". Tap three times to repeat.";
         }
     }
 }

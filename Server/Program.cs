@@ -116,16 +116,18 @@ namespace Server
                     {
                         var departureDate = DateTime.Parse(nextDepartureForRegularRoute.aimed_departure_time);
                         preferenceMessageContent.Append("The number " + nextDepartureForRegularRoute.line + " departs at " +
-                                                        departureDate.ToString("HH mm"));
+                                                        departureDate.ToString("HH mm") + ", ");
                     }
                 }
             }
 
             if (!string.IsNullOrWhiteSpace(preferenceMessageContent.ToString()))
             {
+                var completeMessage = "Your prefered buses departing from this stop are " + preferenceMessageContent + " Triple tap to repeat.";
+
                 Console.WriteLine("Pushing prefered routes to azure...");
                 var busTimesPublisher = new AudioPublisher(new BlobPublisher(), new AudioStreamCreator());
-                busTimesPublisher.GenerateFileAndPublish(quickPrefAudioFile, preferenceMessageContent.ToString());
+                busTimesPublisher.GenerateFileAndPublish(quickPrefAudioFile, completeMessage);
                 Console.WriteLine("Done.");
 
                 return quickPrefAudioFile;
