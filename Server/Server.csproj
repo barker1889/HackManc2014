@@ -81,9 +81,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AudioPublisher.cs" />
-    <Compile Include="AudioStreamCreator.cs" />
-    <Compile Include="BlobPublisher.cs" />
     <Compile Include="BusTimeApi\BusScheduleWrapper.cs" />
     <Compile Include="BusTimeApi\Models\All.cs" />
     <Compile Include="BusTimeApi\Models\BusStopSchedule.cs" />
@@ -96,6 +93,11 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RfidSensor.cs" />
+    <Compile Include="Services\AudioPublisher.cs" />
+    <Compile Include="Services\AudioStreamCreator.cs" />
+    <Compile Include="Services\BlobPublisher.cs" />
+    <Compile Include="Services\BusTimeProcessor.cs" />
+    <Compile Include="Services\MessageGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

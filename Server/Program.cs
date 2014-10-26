@@ -1,14 +1,17 @@
 ﻿using System;
-using System.Globalization;
 using PusherServer;
 using Server.BusTimeApi;
 using Server.InputProcessing;
+using Server.Services;
 
 namespace Server
 {
     class Program
     {
         private const string BusStopId = "1800SB09201";
+        private const string BusStopName = "Lower Byrom Street/Science Museum";
+        private const string AudioBaseUrl = "https://busbuddyjb.blob.core.windows.net/buses/";
+
         private static RfidSensor _sensor;
         private static Pusher _pusher;
 
@@ -60,15 +63,29 @@ namespace Server
         {
             Console.WriteLine("Received: " + e.TagData);
 
-            // TODO: Immediate eedback since the request might take a while
-            // _pusher.Trigger(e.TagData, "request_received", DateTime.Now.ToString(CultureInfo.InvariantCulture));
+            _pusher.Trigger(e.TagData, "request_received", "");
 
             Console.WriteLine("Fetching bus times...");
-            var schedule = new BusScheduleWrapper(BusStopId);
-            schedule.GetBusTimes(DateTime.Now);
+            var busStopSdk = new BusScheduleWrapper(BusStopId);
+            var schedule = busStopSdk.GetBusTimes(DateTime.Now);
             Console.WriteLine("Done.");
 
-            _pusher.Trigger(e.TagData, "location_change", "TBC");
+            var processor = new BusTimeProcessor(schedule);
+            var nextBusses = processor.GetNextThreeBuses();
+
+            var messageGenerator = new MessageGenerator();
+            var messageContent = messageGenerator.GenerateNextDeparturesMessage(BusStopName, nextBusses);
+
+            var fileName = Guid.NewGuid() + ".wav";
+
+            Console.WriteLine("Pushing to azure...");
+            var busTimesPublisher = new AudioPublisher(new BlobPublisher(), new AudioStreamCreator());
+            busTimesPublisher.GenerateFileAndPublish(fileName, messageContent);
+            Console.WriteLine("Done.");
+
+            var fullFilePath = AudioBaseUrl + fileName;
+
+            _pusher.Trigger(e.TagData, "audio_updated", fullFilePath);
         }
 
         static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)
