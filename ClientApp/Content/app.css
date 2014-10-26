@@ -43,9 +43,8 @@
 }
 
 .status-message {
-    display: block;
-    width: 60px;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 140px;
+    position: absolute;
+    bottom: 10px;
+    text-align: center;
+    width: 100%;
 }
