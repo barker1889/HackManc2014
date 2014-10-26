@@ -66,6 +66,25 @@ namespace Server
 
         static void sensor_TagReceived(object sender, TagReceivedEvent e)
         {
+            if (e.TagData == "0107ee6929")
+            {
+
+                Console.WriteLine("Bus arrived, generating message...");
+                var busArrivedFilename = Guid.NewGuid() + ".wav";
+                var busArrivedContent = "The bus that has just arrived is the number 3 to Salford keys";
+
+                var busTimesPublisher = new AudioPublisher(new BlobPublisher(), new AudioStreamCreator());
+                busTimesPublisher.GenerateFileAndPublish(busArrivedFilename, busArrivedContent);
+
+                var completeFileName = AudioBaseUrl + busArrivedFilename;
+
+                _pusher.Trigger("0107ee6b3d", "bus_arrived", completeFileName);
+
+                Console.WriteLine("Done");
+
+                return;
+            }
+
             Console.WriteLine("Received: " + e.TagData);
 
             _pusher.Trigger(e.TagData, "request_received", "");
