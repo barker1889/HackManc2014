@@ -59,6 +59,7 @@
   <ItemGroup>
     <Content Include="Audio\double_tone.mp3" />
     <Content Include="Audio\DrNick.wav" />
+    <Content Include="Audio\Intro.wav" />
     <Content Include="Content\app.css" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />

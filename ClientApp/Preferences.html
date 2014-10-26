@@ -1,0 +1,26 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Bus buddy - Preferences</title>
+</head>
+<body>
+    
+    <h4>Select which bus routes you regularly use. Times for busses on these routes can be accessed quickly.</h4>
+    <input type="text" data-provide="typeahead" placeholder="Route name or number">
+    
+    <script src="Scripts/jquery-1.9.0.min.js" type="text/javascript"></script>
+    <script src="//js.pusher.com/2.2/pusher.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        var getMatchingRoutes = function(query, onProcessed) {
+            var requestUrl = 'http://transportapi.com/v3/uk/bus/stop/1800SB09201/live.json?group=no&api_key=14b9f6c556fb28ce24e28b4322d0191a&app_id=bb1956b4';
+            
+            var result = xmlhttp.open("GET", requestUrl, false);
+            alert(xmlhttp.responseText);
+        };
+
+        $('.typeahead').typeahead({
+            source: getMatchingRoutes
+        });
+    </script>
+</body>
+</html>

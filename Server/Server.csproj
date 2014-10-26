@@ -98,6 +98,7 @@
     <Compile Include="Services\BlobPublisher.cs" />
     <Compile Include="Services\BusTimeProcessor.cs" />
     <Compile Include="Services\MessageGenerator.cs" />
+    <Compile Include="Services\UserPreferenceService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -1,6 +1,11 @@
 ﻿using System;
+using System.Linq;
+using System.Text;
+using Newtonsoft.Json.Linq;
 using PusherServer;
 using Server.BusTimeApi;
+using Server.BusTimeApi.Models;
+using Server.Events;
 using Server.InputProcessing;
 using Server.Services;
 
@@ -59,7 +64,7 @@ namespace Server
             _sensor.TagReceived += sensor_TagReceived;
         }
 
-        static void sensor_TagReceived(object sender, Events.TagReceivedEvent e)
+        static void sensor_TagReceived(object sender, TagReceivedEvent e)
         {
             Console.WriteLine("Received: " + e.TagData);
 
@@ -69,23 +74,85 @@ namespace Server
             var busStopSdk = new BusScheduleWrapper(BusStopId);
             var schedule = busStopSdk.GetBusTimes(DateTime.Now);
             Console.WriteLine("Done.");
+            
+            var quickPreferencesAudioFile = CreatePreferedRoutesAudio(e.TagData, schedule);
+            var nextThreeBussesAudioFile = CreateNextThreeBuseseAudio(schedule);
 
+            nextThreeBussesAudioFile = nextThreeBussesAudioFile.Insert(0, AudioBaseUrl);
+            quickPreferencesAudioFile = quickPreferencesAudioFile.Insert(0, AudioBaseUrl);
+
+            //var responseJson = new Newtonsoft.Json.();
+            //    {
+            //        {"next_departures", nextThreeBussesAudioFile},
+            //        {"prefered_departures", quickPreferencesAudioFile}
+            //    };
+
+            var response = new[]
+                {
+                    nextThreeBussesAudioFile,
+                    quickPreferencesAudioFile
+                };
+
+            _pusher.Trigger(e.TagData, "audio_updated", response);
+        }
+
+        private static string CreatePreferedRoutesAudio(string tagId, BusStopSchedule schedule)
+        {
+            var quickPrefAudioFile = Guid.NewGuid() + ".wav";
+
+            var userPreferencesService = new UserPreferenceService();
+            var usersRegularRoutes = userPreferencesService.GetBusRoutesPreferencesForTag(tagId);
+            var preferenceMessageContent = new StringBuilder();
+
+            if (usersRegularRoutes.Any())
+            {
+                foreach (var userPreference in usersRegularRoutes)
+                {
+                    var nextDepartureForRegularRoute =
+                        schedule.departures.all.FirstOrDefault(
+                            dept => dept.line == userPreference.RouteNumber && dept.direction == userPreference.Direction);
+                    
+                    if (nextDepartureForRegularRoute != null)
+                    {
+                        var departureDate = DateTime.Parse(nextDepartureForRegularRoute.aimed_departure_time);
+                        preferenceMessageContent.Append("The number " + nextDepartureForRegularRoute.line + " departs at " +
+                                                        departureDate.ToString("HH mm") + ", ");
+                    }
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(preferenceMessageContent.ToString()))
+            {
+                var completeMessage = "Your prefered buses departing from this stop are " + preferenceMessageContent + " Triple tap to repeat.";
+
+                Console.WriteLine("Pushing prefered routes to azure...");
+                var busTimesPublisher = new AudioPublisher(new BlobPublisher(), new AudioStreamCreator());
+                busTimesPublisher.GenerateFileAndPublish(quickPrefAudioFile, completeMessage);
+                Console.WriteLine("Done.");
+
+                return quickPrefAudioFile;
+            }
+
+            return "";
+        }
+
+        private static string CreateNextThreeBuseseAudio(BusStopSchedule schedule)
+        {
             var processor = new BusTimeProcessor(schedule);
+
+            var nextThreeBussesAudioFile = Guid.NewGuid() + ".wav";
+
             var nextBusses = processor.GetNextThreeBuses();
 
             var messageGenerator = new MessageGenerator();
             var messageContent = messageGenerator.GenerateNextDeparturesMessage(BusStopName, nextBusses);
 
-            var fileName = Guid.NewGuid() + ".wav";
-
             Console.WriteLine("Pushing to azure...");
             var busTimesPublisher = new AudioPublisher(new BlobPublisher(), new AudioStreamCreator());
-            busTimesPublisher.GenerateFileAndPublish(fileName, messageContent);
+            busTimesPublisher.GenerateFileAndPublish(nextThreeBussesAudioFile, messageContent);
             Console.WriteLine("Done.");
 
-            var fullFilePath = AudioBaseUrl + fileName;
-
-            _pusher.Trigger(e.TagData, "audio_updated", fullFilePath);
+            return nextThreeBussesAudioFile;
         }
 
         static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e)

@@ -16,9 +16,11 @@
         
         <h1 class="title">Bus Buddy</h1>
         <p class="sub-title">You will be alerted when you are in range of a bus stop.</p>
-
-        <span class="glyphicon glyphicon-hand-up tap-icon"></span>
-        <p class="icon-instruction">Tap now</p>
+        
+        <div id="tap-alert">
+            <span class="glyphicon glyphicon-hand-up tap-icon"></span>
+            <p class="icon-instruction">Tap now</p>
+        </div>
 
         <span class="status-message">Paired <span class="glyphicon glyphicon-ok"></span></span>
     </div>
@@ -31,6 +33,9 @@
     <script src="Scripts/tappy-tap.js" type="text/javascript"></script>
 
     <script type="text/javascript">
+        $('#tap-alert').hide();
+
+        var currentAudioFiles;
         var currentAudioFileLocation;
 
         var tagId = window.location.search.substring(1);
@@ -41,10 +46,44 @@
         channel.bind('request_received', function () {
             playAudioFile('Audio/double_tone.mp3');
         });
-        
-        channel.bind('audio_updated', function (audioUrl) {
-            currentAudioFileLocation = audioUrl;
+
+        var playNextBuses = function () {
+            currentAudioFileLocation = currentAudioFiles[0];
             playAudioFile(currentAudioFileLocation);
+            
+            $('#tap-area').tappyTap({
+                delayMs: 400,
+                onDoubleTap: repeatLastAudio
+            });
+        };
+
+        var playMyPreferences = function() {
+            currentAudioFileLocation = currentAudioFiles[1];
+            playAudioFile(currentAudioFileLocation);
+            
+            $('#tap-area').tappyTap({
+                delayMs: 400,
+                onDoubleTap: repeatLastAudio
+            });
+        };
+
+        channel.bind('audio_updated', function (audioUrls) {
+            currentAudioFiles = audioUrls;
+            
+            $('#tap-alert').show();
+
+            if (currentAudioFiles[1] && currentAudioFiles[1] != "") {
+                playAudioFile('Audio/Intro.wav');
+
+                $('#tap-area').tappyTap({
+                    delayMs: 400,
+                    onSingleTap: playNextBuses,
+                    onDoubleTap: playMyPreferences
+                });
+            } else {
+                currentAudioFileLocation = audioUrls[0];
+                playAudioFile(currentAudioFileLocation);
+            }
         });
 
         var playAudioFile = function (url) {
@@ -62,7 +101,7 @@
         
         $('#tap-area').tappyTap({
             delayMs: 400,
-            onDoubleTap: repeatLastAudio
+            onTrippleTap: repeatLastAudio
         });
     </script>
 </body>
